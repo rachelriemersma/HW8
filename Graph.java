@@ -103,8 +103,24 @@ public class Graph {
    */
   
   public int findRoot() {
-
-    // ADD YOUR CODE HERE - DO NOT FORGET TO ADD YOUR NAME/SECTION AT TOP OF FILE
-    return -1;
-  } 
+        // Initialize boolean array to keep track of visited verticies
+        boolean[] visited = new boolean[numVertices];
+        // For every vertex mark outgoing edges as visited
+        for (int i = 0; i < numVertices; i++) {
+            for (Integer dest : adjListArr[i]) {
+                visited[dest] = true;
+            }
+        }
+        // Identify unvisited vertices
+        int rootCount = 0;
+        int rootVertex = -1;
+        for (int i = 0; i < numVertices; i++) {
+            if (!visited[i]) {
+                rootCount++;
+                rootVertex = i;
+            }
+        }
+        // Check if exactly one root if yes return value from vertex values otherwise return -1
+        return (rootCount == 1) ? vertexValues.get(rootVertex) : -1;
+    }
 }
