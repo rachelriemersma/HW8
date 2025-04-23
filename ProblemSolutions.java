@@ -72,18 +72,51 @@ class ProblemSolutions {
      * @return boolean          - True if all exams can be taken, else false.
      */
 
-    public boolean canFinish(int numExams, 
+    public boolean canFinish(int numExams,
                              int[][] prerequisites) {
-      
+
         int numNodes = numExams;  // # of nodes in graph
 
         // Build directed graph's adjacency list
-        ArrayList<Integer>[] adj = getAdjList(numExams, 
-                                        prerequisites); 
+        ArrayList<Integer>[] adj = getAdjList(numExams,
+                prerequisites);
 
-        // ADD YOUR CODE HERE - ADD YOUR NAME / SECTION AT TOP OF FILE
+        boolean[] visited = new boolean[numNodes];
+        boolean[] inStack = new boolean[numNodes];
+        // Detect cycle in any component of the graph
+        for (int i = 0; i < numNodes; i++) {
+            if (!visited[i]) {
+                if (hasCycle(i, adj, visited, inStack)) {
+                    // cycle exists
+                    return false;
+                }
+            }
+        }
+        // no cycles found
+        return true;
+
+    }
+
+    private boolean hasCycle(int node, ArrayList<Integer>[] adj, boolean[] visited, boolean[] inStack) {
+        visited[node] = true;
+        inStack[node] = true;
+        // Explore all neighbors
+        for (Integer neighbor : adj[node]) {
+            // if neighbor hasnt been visited, recurse
+            if (!visited[neighbor]) {
+                if (hasCycle(neighbor, adj, visited, inStack)) {
+                    // cycle found
+                    return true;
+                }
+            } else if (inStack[neighbor]) {
+                // if neighbor is in current stack, we found a cycle
+                return true;
+            }
+        }
+        // remove node from stack after visiting al neighbors
+        inStack[node] = false;
+        // no cycle found
         return false;
-
     }
 
 
@@ -189,10 +222,42 @@ class ProblemSolutions {
                 }
             }
         }
-
-        // YOUR CODE GOES HERE - you can add helper methods, you do not need
-        // to put all code in this method.
-        return -1;
+        // Count connected components using dfs
+        boolean[] visited = new boolean[numNodes];
+        int groupCount = 0;
+        // Mark which nodes are present in graph
+        boolean[] inGraph = new boolean[numNodes];
+        for (Integer node : graph.keySet()) {
+            inGraph[node] = true;
+        }
+        // Traverse all nodes
+        for (int node = 0; node < numNodes; node++) {
+            if (!visited[node]) {
+                // new group found
+                groupCount++;
+                if (graph.containsKey(node)) {
+                    // explore connected component if node has neighbors
+                    dfs(node, graph, visited);
+                } else {
+                    // node is isolated
+                    visited[node] = true;
+                }
+            }
+        }
+        return groupCount;
     }
 
+    private void dfs(int node, Map<Integer,List<Integer>> graph, boolean[] visited) {
+        visited[node] = true;
+        // if node has no neighbors, done.
+        if (!graph.containsKey(node)) {
+            return;
+        }
+        // visit all unvisited neighbors recursively
+        for (Integer neighbor : graph.get(node)) {
+            if (!visited[neighbor]) {
+                dfs(neighbor, graph, visited);
+            }
+        }
+    }
 }
